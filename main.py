@@ -3,6 +3,7 @@ from dotenv import load_dotenv   # Loads environment variables from a .env file
 from video_utils import LipProcessor  # import functions from the helper pyton file
 from lip_sync import LipSyncProcessor
 
+
 # To load the .env file
 load_dotenv()
 

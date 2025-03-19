@@ -8,12 +8,6 @@ import torch, face_detection
 from models import Wav2Lip
 import platform
 
-# ✅ CUDA Optimizasyonu EKLENDİ (Başlangıca Eklendi)
-torch.backends.cudnn.benchmark = True  # CUDA performansını artırır
-torch.cuda.empty_cache()  # GPU belleğini temizler ve donmayı önler
-
-
-
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
@@ -55,6 +49,11 @@ parser.add_argument('--rotate', default=False, action='store_true',
 
 parser.add_argument('--nosmooth', default=False, action='store_true',
 					help='Prevent smoothing face detections over a short temporal window')
+
+#parser.add_argument('--vf', type=str, help="Video filter for resolution scaling")
+#parser.add_argument('--vcodec', type=str, help="Video codec to use")
+#parser.add_argument('--crf', type=int, help="Constant Rate Factor")
+#parser.add_argument('--preset', type=str, help="Preset for encoding speed")
 
 args = parser.parse_args()
 args.img_size = 96
@@ -161,9 +160,7 @@ def datagen(frames, mels):
 
 mel_step_size = 16
 #device = 'cuda' if torch.cuda.is_available() else 'cpu'
-device = 'cuda'
-
-
+device = 'cpu'
 print('Using {} for inference.'.format(device))
 
 def _load(checkpoint_path):
@@ -175,21 +172,17 @@ def _load(checkpoint_path):
 	return checkpoint
 
 def load_model(path):
-    model = Wav2Lip()
-    print("Load checkpoint from: {}".format(path))
-    checkpoint = _load(path)
-    s = checkpoint["state_dict"]
-    new_s = {}
-    for k, v in s.items():
-        new_s[k.replace('module.', '')] = v
-    model.load_state_dict(new_s)
+	model = Wav2Lip()
+	print("Load checkpoint from: {}".format(path))
+	checkpoint = _load(path)
+	s = checkpoint["state_dict"]
+	new_s = {}
+	for k, v in s.items():
+		new_s[k.replace('module.', '')] = v
+	model.load_state_dict(new_s)
 
-    # ✅ Model GPU’ya düşük VRAM ile yüklenmesi için `half()` EKLENDİ
-    model = model.to("cuda").half()
-    return model.eval()
-
-
-
+	model = model.to(device)
+	return model.eval()
 
 def main():
 	if not os.path.isfile(args.face):
