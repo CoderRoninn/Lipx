@@ -35,7 +35,7 @@ parser.add_argument('--wav2lip_batch_size', type=int, help='Batch size for Wav2L
 parser.add_argument('--resize_factor', default=1, type=int, 
 			help='Reduce the resolution by this factor. Sometimes, best results are obtained at 480p or 720p')
 
-parser.add_argument('--crop', nargs='+', type=int, default=[0, -1, 0, -1], 
+parser.add_argument('--crop', nargs='+', type=int, default=[0, -1, 0, -1],
 					help='Crop video to a smaller region (top, bottom, left, right). Applied after resize_factor and rotate arg. ' 
 					'Useful if multiple face present. -1 implies the value will be auto-inferred based on height, width')
 
@@ -49,11 +49,6 @@ parser.add_argument('--rotate', default=False, action='store_true',
 
 parser.add_argument('--nosmooth', default=False, action='store_true',
 					help='Prevent smoothing face detections over a short temporal window')
-
-#parser.add_argument('--vf', type=str, help="Video filter for resolution scaling")
-#parser.add_argument('--vcodec', type=str, help="Video codec to use")
-#parser.add_argument('--crf', type=int, help="Constant Rate Factor")
-#parser.add_argument('--preset', type=str, help="Preset for encoding speed")
 
 args = parser.parse_args()
 args.img_size = 96
@@ -156,7 +151,7 @@ def datagen(frames, mels):
 		img_batch = np.concatenate((img_masked, img_batch), axis=3) / 255.
 		mel_batch = np.reshape(mel_batch, [len(mel_batch), mel_batch.shape[1], mel_batch.shape[2], 1])
 
-		yield img_batch, mel_batch, frame_batch, coords_batch
+		yield img_batch, mel_batch, frame_batch, coords_batch 
 
 mel_step_size = 16
 #device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -272,10 +267,12 @@ def main():
 		
 		for p, f, c in zip(pred, frames, coords):
 			y1, y2, x1, x2 = c
+
 			p = cv2.resize(p.astype(np.uint8), (x2 - x1, y2 - y1))
 
-			f[y1:y2, x1:x2] = p
+			f[y1:y2, x1:x2] = p 
 			out.write(f)
+
 
 	out.release()
 

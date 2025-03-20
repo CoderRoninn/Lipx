@@ -11,7 +11,7 @@ class LipProcessor:
         self.avatar_path = os.path.join(BASE_DIR, "avatar.jpg") # Define file paths for avatar, audio, video, and final output
         self.audio_path = os.path.join(BASE_DIR, "audio.mp3")
         self.video_path = os.path.join(BASE_DIR, "video.mp4")
-        #self.output_path = os.path.join(BASE_DIR, "final_output.mp4")
+        
 
     def convert_mp3_to_wav(self, mp3_path: str, wav_path: str) -> bool:    # Convert an mp3 to file to wav format using ffmpeg
         try:
@@ -30,9 +30,8 @@ class LipProcessor:
             print(f"Failed to retrieve audio duration. Error: {e}")  
             return None # No valid duration available
 
-    def text_to_speech(self, text: str) -> Optional[str]:
+    def text_to_speech(self, text: str) -> Optional[str]: # Convert text to speech and save as an MP3 file
         try:
-            # Convert text to speech and save as an MP3 file
             tts = gTTS(text, lang="en") 
             tts.save(self.audio_path) 
             print("Audio file created (MP3).")  
@@ -54,8 +53,7 @@ class LipProcessor:
     def image_to_video(self) -> None: # Convert avatar image to a video
         duration = self.get_audio_duration() # Get the duration
         try:
-            #ffmpeg.input(self.avatar_path, loop=1).output(self.video_path, t=duration, vf="scale=1920:1080", vcodec="libx264", pix_fmt="yuv420p", r=30).run(overwrite_output=True)
-            ffmpeg.input(self.avatar_path, loop=1).output(self.video_path, t=duration, vf="scale=1280:720", vcodec="libx264", pix_fmt="yuv420p").run(overwrite_output=True)
+            ffmpeg.input(self.avatar_path, loop=1).output(self.video_path, t=duration, vf="scale=1280:720", r=30, vcodec="libx264", pix_fmt="yuv420p").run(overwrite_output=True)
             print("Video file created.")
         except Exception as e:
             print(f"Failed to create video. Error: {e}")
